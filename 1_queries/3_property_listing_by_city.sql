@@ -7,7 +7,7 @@ FROM
   properties
   join property_reviews on properties.id = property_reviews.property_id
 WHERE
-  city = 'ancouver'
+  city = 'Vancouver'
 GROUP BY
   properties.id
 HAVING
