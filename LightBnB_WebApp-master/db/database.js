@@ -7,8 +7,6 @@ const pool = new Pool({
   database: 'lightbnb'
 });
 
-
-
 /// Users
 
 /**
@@ -153,7 +151,7 @@ const getAllProperties = (options, limit = 10) => {
     queryString += 'WHERE ' + conditions.join(' AND ') + ' ';
   }
 
-  
+
   queryString += `
         GROUP BY properties.id `;
 
@@ -168,9 +166,6 @@ const getAllProperties = (options, limit = 10) => {
     `ORDER BY cost_per_night
         LIMIT $${queryParams.length};
   `;
-
-  console.log(queryString, queryParams);
-
   return pool.query(queryString, queryParams)
     .then((result) => {
       return result.rows;
@@ -186,10 +181,98 @@ const getAllProperties = (options, limit = 10) => {
  * @return {Promise<{}>} A promise to the property.
  */
 const addProperty = function(property) {
-  const propertyId = Object.keys(properties).length + 1;
-  property.id = propertyId;
-  properties[propertyId] = property;
-  return Promise.resolve(property);
+  const queryParams = [];
+  let queryString = `INSERT INTO properties`;
+
+  const column_name = [];
+  const values = [];
+
+  if (property.owner_id) {
+    column_name.push("owner_id");
+    queryParams.push(property.owner_id);
+    values.push(`$${queryParams.length}`);
+  }
+
+  if (property.title) {
+    column_name.push("title");
+    queryParams.push(property.title);
+    values.push(`$${queryParams.length}`);
+  }
+  if (property.description) {
+    column_name.push("description");
+    queryParams.push(property.description);
+    values.push(`$${queryParams.length}`);
+  }
+  if (property.thumbnail_photo_url) {
+    column_name.push("thumbnail_photo_url");
+    queryParams.push(property.thumbnail_photo_url);
+    values.push(`$${queryParams.length}`);
+  }
+  if (property.cover_photo_url) {
+    column_name.push("cover_photo_url");
+    queryParams.push(property.cover_photo_url);
+    values.push(`$${queryParams.length}`);
+  }
+  if (property.cost_per_night) {
+    column_name.push("cost_per_night");
+    queryParams.push(property.cost_per_night);
+    values.push(`$${queryParams.length}`);
+  }
+  if (property.street) {
+    column_name.push("street");
+    queryParams.push(property.street);
+    values.push(`$${queryParams.length}`);
+  }
+  if (property.city) {
+    column_name.push("city");
+    queryParams.push(property.city);
+    values.push(`$${queryParams.length}`);
+  }
+  if (property.province) {
+    column_name.push("province");
+    queryParams.push(property.province);
+    values.push(`$${queryParams.length}`);
+  }
+  if (property.post_code) {
+    column_name.push("post_code");
+    queryParams.push(property.post_code);
+    values.push(`$${queryParams.length}`);
+  }
+  if (property.country) {
+    column_name.push("country");
+    queryParams.push(property.country);
+    values.push(`$${queryParams.length}`);
+  }
+  if (property.parking_spaces) {
+    column_name.push("parking_spaces");
+    queryParams.push(property.parking_spaces);
+    values.push(`$${queryParams.length}`);
+  }
+  if (property.number_of_bathrooms) {
+    column_name.push("number_of_bathrooms");
+    queryParams.push(property.number_of_bathrooms);
+    values.push(`$${queryParams.length}`);
+  }
+  if (property.number_of_bedrooms) {
+    column_name.push("number_of_bedrooms");
+    queryParams.push(property.number_of_bedrooms);
+    values.push(`$${queryParams.length}`);
+  }
+
+  if (values.length > 0) {
+    queryString += '(' + column_name.join(',') + ')' + ' VALUES(' + values.join(',') + ') ';
+  }
+
+  queryString += 'RETURNING *;';
+
+  // console.log(queryString, queryParams);
+  return pool.query(queryString, queryParams)
+    .then(result => {
+      return result.rows[0];
+    })
+    .catch((err) => {
+      console.log(err.message);
+    });
 };
 
 module.exports = {
